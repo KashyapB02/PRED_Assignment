@@ -1,8 +1,29 @@
+import type { Trade, TradeHistory } from "@/context/trading";
 import { OPEN_ORDER_TABS, type OpenOrderTab } from "@/data";
-import { useState } from "react";
+import { useTradingStates } from "@/hooks/useTradingStates";
+import { Fragment, useMemo, useState } from "react";
 
 export function OpenOrders() {
   const [activeTab, setActiveTab] = useState<OpenOrderTab["value"]>(OPEN_ORDER_TABS[0].value);
+  const { openOrders, positions, tradeHistory, closeOpenOrder, closePosition } = useTradingStates();
+
+  const tradeList = useMemo(() => {
+    if (activeTab === "open_orders") return openOrders;
+    if (activeTab === "positions") return positions;
+    return tradeHistory;
+  }, [activeTab, openOrders, positions, tradeHistory]);
+
+  function handleCancelAll() {
+    if (activeTab === "open_orders") {
+      return openOrders.map((order) => closeOpenOrder(order));
+    }
+    if (activeTab === "positions") return positions.map((position) => closePosition(position));
+  }
+
+  function handleCancel(trade: Trade) {
+    if (activeTab === "open_orders") return closeOpenOrder(trade);
+    if (activeTab === "positions") return closePosition(trade);
+  }
 
   return (
     <div>
@@ -33,36 +54,64 @@ export function OpenOrders() {
             Hide Other Pairs
           </label>
         </div>
-        <button className="text-sm h-6 w-[86px] bg-[#EAEAEA] text-[#000000] rounded leading-none">Cancel All</button>
+        {activeTab !== "trade_history" && (
+          <button
+            className="text-sm h-6 w-[86px] bg-[#EAEAEA] text-[#000000] rounded leading-none"
+            onClick={handleCancelAll}
+          >
+            Cancel All
+          </button>
+        )}
       </section>
-      <section className="px-6 pb-6">
-        <div className="flex justify-between items-start mb-2">
-          <div>
-            <div className="font-medium text-sm text-[#000000]">CSK / IPL Winner</div>
-            <div className="text-[#858585] text-[10px]">
-              <span className="text-[#56AB68]">Limit buy </span> 2025-06-03 14:57:23
+      <section className="px-6 pb-6 space-y-2.5">
+        {tradeList.map((trade) => (
+          <Fragment key={trade.id}>
+            <div className="flex justify-between items-start mb-2">
+              <div>
+                <div className="font-medium text-sm text-[#000000]">CSK / IPL Winner</div>
+                <div className="text-[#858585] text-[10px]">
+                  <span className={`${trade.type === "long" ? "text-[#56AB68]" : "text-red-700"}`}>
+                    {trade.category === "limit" ? "Limit" : "Market"} {trade.type === "long" ? "Buy" : "Sell"}{" "}
+                  </span>{" "}
+                  {trade.createdAt}
+                </div>
+              </div>
+              <div className="text-right items-center flex gap-2">
+                <div className="flex flex-col items-center">
+                  <div className="font-medium text-[#000000] text-xs">0%</div>
+                  <div className="w-9 h-1 bg-[#E8DEF8] rounded-sm"></div>
+                </div>
+                {activeTab !== "trade_history" && (
+                  <button
+                    className="text-sm bg-[#EAEAEA] text-[#000000] px-2.5 py-1.5 rounded leading-none"
+                    onClick={() => handleCancel(trade)}
+                  >
+                    Cancel
+                  </button>
+                )}
+                {activeTab === "trade_history" && (
+                  <span
+                    className={`text-sm ${
+                      (trade as TradeHistory).action === "close" ? "bg-[#A900221A]" : "bg-[#06A9001A]"
+                    } text-[#000000] px-2.5 py-1.5 rounded leading-none`}
+                  >
+                    {(trade as TradeHistory).action === "open" ? "Opened" : "Cancelled"}
+                  </span>
+                )}
+              </div>
             </div>
-          </div>
-          <div className="text-right items-center flex gap-2">
-            <div className="flex flex-col items-center">
-              <div className="font-medium text-[#000000] text-xs">0%</div>
-              <div className="w-9 h-1 bg-[#E8DEF8] rounded-sm"></div>
+            <div className="space-y-1 text-[10px]">
+              <div className="flex justify-between">
+                <span className="text-[#3B3B3B] ">Shares</span>
+                <span className="text-[#000000]">{trade.shares}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-[#3B3B3B]">Price</span>
+                <span className="text-[#000000]">{trade.usdPrice}¢</span>
+              </div>
             </div>
-            <button className="text-sm bg-[#EAEAEA] text-[#000000] px-2.5 py-1.5 rounded leading-none">Cancel</button>
-          </div>
-        </div>
-        <div className="space-y-1 text-[10px]">
-          <div className="flex justify-between">
-            <span className="text-[#3B3B3B] ">Filled / Amount</span>
-            <span className="text-[#000000]">
-              0.00 /<span className="text-[#858585]"> 0.01</span>
-            </span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-[#3B3B3B]">Price</span>
-            <span className="text-[#000000]">30¢</span>
-          </div>
-        </div>
+          </Fragment>
+        ))}
       </section>
     </div>
   );

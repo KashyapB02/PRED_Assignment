@@ -24,7 +24,7 @@ function Slider({ initialValue, onChange }: Readonly<SliderProps>) {
             ))}
           </div>
           <button
-            className="absolute top-1/2 -translate-y-1/2 w-6 h-6 bg-[#D9D9D9] rounded-full cursor-pointer shadow-sm flex items-center justify-center z-10"
+            className="absolute top-1/2 -translate-y-1/2 size-4 bg-[#D9D9D9] rounded-full cursor-pointer shadow-sm flex items-center justify-center z-[5]"
             style={{
               left: `${value}%`,
               transform: "translateX(-50%) translateY(-50%)",
@@ -49,7 +49,7 @@ function Slider({ initialValue, onChange }: Readonly<SliderProps>) {
               document.addEventListener("mouseup", handleMouseUp);
             }}
           >
-            <div className="w-3 h-3 bg-[#404040] rounded-full"></div>
+            <div className="w-2 h-2 bg-[#404040] rounded-full"></div>
           </button>
           <button
             className="absolute inset-0 cursor-pointer"
