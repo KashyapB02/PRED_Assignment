@@ -53,6 +53,8 @@ export function Dropdown({ defaultValue, options, onSelectionChange }: Readonly<
         <img
           src="/arrow.svg"
           alt="arrow"
+          width={8}
+          height={8}
           className={`size-2 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
         />
       </button>
