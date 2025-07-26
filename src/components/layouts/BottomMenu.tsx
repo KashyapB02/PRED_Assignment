@@ -11,7 +11,7 @@ export function BottomMenu() {
           {BOTTOM_MENU_ITEMS.map((item) => (
             <li key={item.id}>
               <Link to={item.route} className="flex flex-col items-center">
-                <img src={item.icon} alt={item.id} width={24} height={24} className="size-6" />
+                <img src={item.icon} alt={`${item.id}_icon`} width={24} height={24} className="size-6" />
                 <span className={`text-sm ${pathname === item.route ? "text-gray-900" : "text-[#858585]"} mt-0.5`}>
                   {item.label}
                 </span>
